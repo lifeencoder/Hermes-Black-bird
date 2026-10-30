@@ -2,15 +2,20 @@
 # -*- coding: utf-8 -*-
 """
 Hermes Black Bird - Safe Dummy MCP Server for Testing
-Exposes benign system diagnostics (CPU, RAM, OS platform) conforming to official MCP 2.x specification.
+Exposes benign system diagnostics (CPU, RAM, OS platform) conforming to official MCP specification.
+Compatible with both MCP 1.x (FastMCP) and MCP 2.x (MCPServer).
 """
 
 import os
 import platform
 import sys
-from mcp.server.mcpserver import MCPServer
 
-server = MCPServer("DummySystemInfoServer")
+try:
+    from mcp.server.fastmcp import FastMCP as ServerClass
+except ImportError:
+    from mcp.server.mcpserver import MCPServer as ServerClass
+
+server = ServerClass("DummySystemInfoServer")
 
 
 @server.tool(
