@@ -14,6 +14,7 @@ from typing import Any, Callable, Dict, List, Optional, Union
 class ToolRegistry:
     """
     Registry for managing and executing tools available to the LLM agent.
+    Supports both native Python functions and remote Model Context Protocol (MCP) tools.
     """
 
     def __init__(self):
@@ -46,6 +47,41 @@ class ToolRegistry:
         }
         self._tools[name] = tool_definition
         self._functions[name] = func
+
+    def register_mcp_tools(self, mcp_client: Any) -> List[str]:
+        """
+        Discover and register all tools from an MCPClient into this registry.
+
+        Args:
+            mcp_client: MCPClient instance (with list_tools() and call_tool() methods).
+
+        Returns:
+            List of registered tool names.
+        """
+        mcp_tools = mcp_client.list_tools()
+        registered_names: List[str] = []
+
+        for tool_info in mcp_tools:
+            name = tool_info["name"]
+            description = tool_info.get("description", f"MCP Tool: {name}")
+            parameters = tool_info.get("parameters") or {
+                "type": "object",
+                "properties": {},
+            }
+
+            # Create closure for delegating tool execution to mcp_client
+            def make_proxy(tool_name: str):
+                return lambda **kwargs: mcp_client.call_tool(tool_name, kwargs)
+
+            self.register(
+                name=name,
+                description=description,
+                parameters=parameters,
+                func=make_proxy(name),
+            )
+            registered_names.append(name)
+
+        return registered_names
 
     def tool(
         self,
