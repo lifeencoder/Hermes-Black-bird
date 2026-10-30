@@ -2,6 +2,7 @@
 """
 Hermes Black Bird - Core Model Client
 Independent, portable client for interacting with vLLM OpenAI-compatible endpoints.
+Supports standard system_prompt injection, dynamic tool calling, and streaming.
 Pure Python - strictly decoupled from any UI frameworks (Marimo, Gradio, Streamlit).
 """
 
@@ -25,6 +26,7 @@ class ModelClient:
         model_name: Optional[str] = None,
         default_temperature: Optional[float] = None,
         default_max_tokens: Optional[int] = None,
+        default_system_prompt: Optional[str] = None,
     ):
         """
         Initialize the ModelClient with config file or parameter overrides.
@@ -66,6 +68,11 @@ class ModelClient:
             if default_max_tokens is not None
             else self.config.get("default_max_tokens", 2048)
         )
+        self.default_system_prompt = (
+            default_system_prompt
+            if default_system_prompt is not None
+            else self.config.get("default_system_prompt", None)
+        )
 
         # Initialize the underlying OpenAI client
         self.client = OpenAI(base_url=self.base_url, api_key=self.api_key)
@@ -106,6 +113,7 @@ class ModelClient:
         messages: List[Dict[str, Any]],
         tools: Optional[List[Dict[str, Any]]] = None,
         stream: bool = True,
+        system_prompt: Optional[str] = None,
         **kwargs,
     ) -> Any:
         """
@@ -115,6 +123,7 @@ class ModelClient:
             messages: List of message objects ({'role': 'user', 'content': ...})
             tools: Optional tool/function specifications for tool calling
             stream: Whether to stream tokens incrementally
+            system_prompt: Optional system prompt to prepend as the initial instruction
             **kwargs: Extra parameters passed to client.chat.completions.create
 
         Returns:
@@ -124,9 +133,19 @@ class ModelClient:
         max_tokens = kwargs.pop("max_tokens", self.default_max_tokens)
         model = kwargs.pop("model", self.model_name)
 
+        # Apply system_prompt: explicit argument takes precedence over default
+        effective_system = system_prompt if system_prompt is not None else self.default_system_prompt
+
+        formatted_messages = list(messages)
+        if effective_system:
+            if formatted_messages and formatted_messages[0].get("role") == "system":
+                formatted_messages[0] = {"role": "system", "content": effective_system}
+            else:
+                formatted_messages.insert(0, {"role": "system", "content": effective_system})
+
         payload: Dict[str, Any] = {
             "model": model,
-            "messages": messages,
+            "messages": formatted_messages,
             "temperature": temperature,
             "max_tokens": max_tokens,
             "stream": stream,
