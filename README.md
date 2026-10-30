@@ -146,8 +146,22 @@ Hermes-Black-bird/
 
 ---
 
+## 🌐 درباره توسعه‌دهنده و حامی پروژه (DastyarAI)
+
+این پروژه با افتخار توسط تیم **دستیار هوشمند فارسی (DastyarAI)** نگهداری و توسعه داده می‌شود.
+
+- 🌐 **وب‌سایت رسمی:** [dastyarai.com](https://dastyarai.com/)
+- 📖 **درباره ما:** [dastyarai.com/about](https://dastyarai.com/about)
+- 📢 **کانال اطلاع‌رسانی تلگرام:** [@fachatbox](https://t.me/fachatbox)
+- 👥 **گروه پرسش و پاسخ و جامعه کاربران:** [@dastyaraigroup](https://t.me/dastyaraigroup)
+- 🤖 **ربات هوشمند دستیار:** [@FaChatBox_bot](https://t.me/FaChatBox_bot)
+
+> 💡 در سایت **دستیار هوشمند** می‌توانید به جدیدترین ابزارهای کاربردی هوش مصنوعی، آموزش‌های تخصصی و ربات‌های تعاملی دسترسی داشته باشید.
+
+---
+
 <p align="center">
-  <sub>طراحی و توسعه‌یافته در قالب بسته مستقل <b>Hermes Black Bird</b></sub>
+  <sub>طراحی و توسعه‌یافته با افتخار توسط تیم <a href="https://dastyarai.com/"><b>DastyarAI</b></a> در قالب بسته مستقل <b>Hermes Black Bird</b></sub>
 </p>
 
 </div>
