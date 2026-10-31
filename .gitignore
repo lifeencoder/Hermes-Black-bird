@@ -1,17 +1,44 @@
-# Python
+# Python & Environments
 __pycache__/
 *.py[cod]
+*$py.class
 venv/
+.venv/
+env/
+ENV/
 .env
+.env.local
+.env.*.local
+!.env.example
 
-# Model Weights (BIG FILES)
+# Model Weights & Large Checkpoints (CRITICAL - DO NOT COMMIT)
 hf_cache/
+cache/
 *.safetensors
 *.bin
 *.pt
 *.pth
+*.gguf
+*.onnx
+*.h5
+*.ckpt
+*.model
+*.weights
+*.parquet
+*.arrow
 
-# Logs & Temp
+# Logs, PIDs, & Temporary Data
 *.log
 *.tmp
+*.temp
+*.pid
+*.out
+vllm.pid
 .DS_Store
+Thumbs.db
+
+# Testing & Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.ipynb_checkpoints/

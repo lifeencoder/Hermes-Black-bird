@@ -4,5 +4,7 @@
 base_url: "http://localhost:8000/v1"
 api_key: "EMPTY"
 model_name: "NousResearch/Hermes-3-Llama-3.1-70B-FP8"
-default_temperature: 0.7
+default_temperature: 0.8
 default_max_tokens: 2048
+default_top_p: 0.95
+default_presence_penalty: 0.1

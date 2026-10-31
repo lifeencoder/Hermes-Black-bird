@@ -205,5 +205,24 @@ def echo_message(message: str) -> str:
     return f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] سرور MCP دریافت کرد: {message}"
 
 
+@server.tool(
+    name="execute_command",
+    description="اجرای امن و ایزوله دستورات استاندارد محیطی مانند echo در محیط شبیه‌سازی‌شده."
+)
+def execute_command(command: str) -> str:
+    cmd = command.strip()
+    if cmd.startswith("echo "):
+        return cmd[5:].strip("'\"")
+    elif cmd == "echo":
+        return ""
+    elif cmd == "date":
+        import time
+        return time.strftime("%Y-%m-%d %H:%M:%S")
+    elif cmd == "whoami":
+        return "hermes-agent"
+    else:
+        return f"[Safe Sandbox Simulation] Executed: {cmd}"
+
+
 if __name__ == "__main__":
     server.run(transport="stdio")

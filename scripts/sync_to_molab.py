@@ -10,10 +10,23 @@ import base64
 import subprocess
 from pathlib import Path
 
+def _load_env():
+    env_file = Path(__file__).resolve().parent.parent / ".env"
+    if env_file.exists():
+        with open(env_file, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    if k.strip() not in os.environ:
+                        os.environ[k.strip()] = v.strip().strip("'\"")
+
+_load_env()
+
 LOCAL_ROOT = Path(__file__).resolve().parent.parent
 DIRS_TO_SYNC = ["config", "client", "runner", "tools", "tests"]
-MOLAB_URL = "https://sb-d1dcf65203f25955.sb.molab.run/"
-MOLAB_TOKEN = "982d2a7c2f450b665e578781ab35321f2b74653c495e9107f3476101d7130570"
+MOLAB_URL = os.getenv("MOLAB_URL", "https://sb-91c0c5f9b81b2fa5.sb.molab.run/")
+MOLAB_TOKEN = os.getenv("MOLAB_TOKEN", "")
 GIT_BASH = r"C:\Program Files\Git\bin\bash.exe"
 EXECUTE_SCRIPT = r"C:/Users/farha/.gemini/config/skills/marimo-pair/scripts/execute-code.sh"
 
@@ -40,8 +53,10 @@ def run_code_in_molab(python_code: str) -> bool:
 
 
 def sync_file(rel_path: str, content_bytes: bytes) -> bool:
-    b64_str = base64.b64encode(content_bytes).decode("ascii")
-    remote_code = f"""
+    chunk_size = 12000
+    if len(content_bytes) <= chunk_size:
+        b64_str = base64.b64encode(content_bytes).decode("ascii")
+        remote_code = f"""
 import os, base64
 target = os.path.join('/marimo/model_package', {repr(rel_path)})
 os.makedirs(os.path.dirname(target), exist_ok=True)
@@ -50,7 +65,30 @@ with open(target, 'wb') as f:
     f.write(data)
 print(f'Synced: {{target}} ({{len(data)}} bytes)')
 """
-    return run_code_in_molab(remote_code)
+        return run_code_in_molab(remote_code)
+    else:
+        # Chunked upload for large files
+        remote_init = f"""
+import os
+target = os.path.join('/marimo/model_package', {repr(rel_path)})
+os.makedirs(os.path.dirname(target), exist_ok=True)
+with open(target, 'wb') as f:
+    pass
+"""
+        if not run_code_in_molab(remote_init):
+            return False
+        for i in range(0, len(content_bytes), chunk_size):
+            chunk = content_bytes[i:i + chunk_size]
+            b64_chunk = base64.b64encode(chunk).decode("ascii")
+            remote_append = f"""
+import base64
+target = os.path.join('/marimo/model_package', {repr(rel_path)})
+with open(target, 'ab') as f:
+    f.write(base64.b64decode('{b64_chunk}'))
+"""
+            if not run_code_in_molab(remote_append):
+                return False
+        return True
 
 
 def sync():

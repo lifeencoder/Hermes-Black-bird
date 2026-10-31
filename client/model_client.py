@@ -2,7 +2,7 @@
 """
 Hermes Black Bird - Core Model Client
 Independent, portable client for interacting with vLLM OpenAI-compatible endpoints.
-Supports standard system_prompt injection, dynamic tool calling, and streaming.
+Supports default technical system_prompt, dynamic tool calling, customized inference parameters, and streaming.
 Pure Python - strictly decoupled from any UI frameworks (Marimo, Gradio, Streamlit).
 """
 
@@ -11,6 +11,11 @@ from pathlib import Path
 from typing import Any, Dict, Generator, List, Optional, Union
 import yaml
 from openai import OpenAI
+
+DEFAULT_SYSTEM_PROMPT = """You are an expert, highly capable, and objective engineering AI assistant.
+Your goal is to provide comprehensive, in-depth, and rigorous technical explanations,
+code implementations, and systems architecture analyses without unnecessary disclaimers or evasive phrasing.
+Focus strictly on engineering depth, factual accuracy, code quality, and domain expertise."""
 
 
 class ModelClient:
@@ -27,6 +32,8 @@ class ModelClient:
         default_temperature: Optional[float] = None,
         default_max_tokens: Optional[int] = None,
         default_system_prompt: Optional[str] = None,
+        default_top_p: Optional[float] = None,
+        default_presence_penalty: Optional[float] = None,
     ):
         """
         Initialize the ModelClient with config file or parameter overrides.
@@ -61,7 +68,7 @@ class ModelClient:
         self.default_temperature = float(
             default_temperature
             if default_temperature is not None
-            else self.config.get("default_temperature", 0.7)
+            else self.config.get("default_temperature", 0.8)
         )
         self.default_max_tokens = int(
             default_max_tokens
@@ -71,7 +78,17 @@ class ModelClient:
         self.default_system_prompt = (
             default_system_prompt
             if default_system_prompt is not None
-            else self.config.get("default_system_prompt", None)
+            else self.config.get("default_system_prompt", DEFAULT_SYSTEM_PROMPT)
+        )
+        self.default_top_p = float(
+            default_top_p
+            if default_top_p is not None
+            else self.config.get("default_top_p", 0.95)
+        )
+        self.default_presence_penalty = float(
+            default_presence_penalty
+            if default_presence_penalty is not None
+            else self.config.get("default_presence_penalty", 0.1)
         )
 
         # Initialize the underlying OpenAI client
@@ -131,6 +148,8 @@ class ModelClient:
         """
         temperature = kwargs.pop("temperature", self.default_temperature)
         max_tokens = kwargs.pop("max_tokens", self.default_max_tokens)
+        top_p = kwargs.pop("top_p", self.default_top_p)
+        presence_penalty = kwargs.pop("presence_penalty", self.default_presence_penalty)
         model = kwargs.pop("model", self.model_name)
 
         # Apply system_prompt: explicit argument takes precedence over default
@@ -148,6 +167,8 @@ class ModelClient:
             "messages": formatted_messages,
             "temperature": temperature,
             "max_tokens": max_tokens,
+            "top_p": top_p,
+            "presence_penalty": presence_penalty,
             "stream": stream,
             **kwargs,
         }
@@ -185,4 +206,8 @@ if __name__ == "__main__":
     client = ModelClient()
     print("Base URL:", client.base_url)
     print("Model Name:", client.model_name)
+    print("Temperature:", client.default_temperature)
+    print("Top P:", client.default_top_p)
+    print("Presence Penalty:", client.default_presence_penalty)
+    print("System Prompt Preview:", client.default_system_prompt[:60] if client.default_system_prompt else "None")
     print("Connected:", client.check_connection())
