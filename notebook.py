@@ -385,6 +385,11 @@ def persian_chat_app(
                     color: ${isDark ? '#e4e4e7' : '#0f172a'} !important;
                 }
                 /* Full width for assistant messages */
+                div.flex.flex-col.group.gap-2.items-start {
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    align-items: stretch !important;
+                }
                 div[class*="max-w-[80%]"], [data-role="assistant"], div.flex.flex-col.group.gap-2.items-start > div {
                     max-width: 100% !important;
                     width: 100% !important;
@@ -394,12 +399,21 @@ def persian_chat_app(
                     max-width: 100% !important;
                 }
 
-                /* Outer Code Container: ONLY ONE BORDER & strictly Left-Aligned (LTR) */
-                .hover-actions-parent {
+                /* Outer Code Container: Single Clean Frame, Full Width, Strictly LTR */
+                .hover-actions-parent,
+                .mo-markdown-renderer .relative,
+                .mo-markdown-renderer [class*="group"],
+                .mo-markdown-renderer div:has(> .text-muted-foreground) {
+                    border: none !important;
+                    box-shadow: none !important;
+                    outline: none !important;
+                    background: transparent !important;
                     width: 100% !important;
+                    max-width: 100% !important;
                     direction: ltr !important;
                     text-align: left !important;
-                    margin: 14px 0 !important;
+                    margin-left: 0 !important;
+                    margin-right: auto !important;
                 }
                 .hover-actions-parent > .cm-theme-light,
                 .hover-actions-parent > pre,
@@ -411,11 +425,12 @@ def persian_chat_app(
                     background: #0d1117 !important;
                     background-color: #0d1117 !important;
                     border: 1px solid #30363d !important;
-                    border-radius: 10px !important;
-                    margin: 0 !important;
+                    border-radius: 8px !important;
+                    margin: 10px 0 !important;
                     overflow: hidden !important;
-                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
+                    box-shadow: none !important;
                     width: 100% !important;
+                    max-width: 100% !important;
                 }
                 .cm-theme-light.cm, .cm-editor, .cm-scroller, .cm-content, .cm-line, pre, code {
                     direction: ltr !important;
@@ -429,15 +444,27 @@ def persian_chat_app(
                 .cm-theme-light .cm-wrap,
                 .cm-theme-light .cm-content,
                 pre .cm-editor,
-                pre .cm-scroller {
+                pre .cm-scroller,
+                .cm-theme-light.cm {
                     border: none !important;
+                    outline: none !important;
                     margin: 0 !important;
                     background: transparent !important;
                     background-color: transparent !important;
                     box-shadow: none !important;
                     border-radius: 0 !important;
                 }
-                /* Chat Input Bar: Reset nested CodeMirror borders */
+                /* Chat Input Bar: Single clean input line, no nested duplicate borders */
+                form {
+                    border-top: 1px solid ${isDark ? '#27272a' : '#e2e8f0'} !important;
+                    border-bottom: none !important;
+                    border-left: none !important;
+                    border-right: none !important;
+                    padding: 8px 12px !important;
+                    background: ${isDark ? '#141417' : '#f8fafc'} !important;
+                    border-radius: 0 0 14px 14px !important;
+                    box-shadow: none !important;
+                }
                 form [class*="cm-editor"],
                 form [class*="cm-scroller"],
                 form [class*="cm-theme"],
@@ -450,11 +477,16 @@ def persian_chat_app(
                     background-color: transparent !important;
                     border-radius: 0 !important;
                 }
-                form {
-                    border-top: 1px solid ${isDark ? '#27272a' : '#e2e8f0'} !important;
-                    padding: 8px 12px !important;
-                    background: ${isDark ? '#141417' : '#f8fafc'} !important;
-                    border-radius: 0 0 14px 14px !important;
+                form > div.cm-theme-light {
+                    border: 1px solid ${isDark ? '#27272a' : '#cbd5e1'} !important;
+                    background: ${isDark ? '#18181b' : '#ffffff'} !important;
+                    border-radius: 8px !important;
+                    padding: 2px 6px !important;
+                    transition: border-color 0.2s ease !important;
+                }
+                form > div.cm-theme-light:focus-within {
+                    border-color: #3b82f6 !important;
+                    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
                 }
                 .cm-content, pre code {
                     color: #e6edf3 !important;
@@ -594,12 +626,12 @@ def persian_chat_app(
         </div>
         """)
     ], gap=0.8).style({
-        "width": "330px",
-        "min-width": "310px",
+        "width": "300px",
+        "min-width": "290px",
         "background-color": "var(--panel-bg)",
         "border": "1px solid var(--panel-border)",
         "border-radius": "16px",
-        "padding": "20px",
+        "padding": "18px",
         "box-shadow": "0 4px 16px rgba(0, 0, 0, 0.05)",
         "transition": "all 0.25s ease"
     })
@@ -608,12 +640,13 @@ def persian_chat_app(
         chat_widget
     ]).style({
         "flex": "1",
-        "min-width": "460px",
-        "background-color": "var(--panel-bg)",
-        "border": "1px solid var(--panel-border)",
-        "border-radius": "16px",
-        "padding": "16px",
-        "box-shadow": "0 4px 16px rgba(0, 0, 0, 0.05)",
+        "min-width": "580px",
+        "width": "100%",
+        "background": "transparent",
+        "border": "none",
+        "border-radius": "0",
+        "padding": "0",
+        "box-shadow": "none",
         "transition": "all 0.25s ease"
     })
 
@@ -627,9 +660,9 @@ def persian_chat_app(
     ], gap=1).style({
         "direction": "rtl",
         "text-align": "right",
-        "padding": "24px 20px",
-        "width": "96%",
-        "max-width": "1540px",
+        "padding": "20px 14px",
+        "width": "100%",
+        "max-width": "1720px",
         "margin": "0 auto"
     })
 
