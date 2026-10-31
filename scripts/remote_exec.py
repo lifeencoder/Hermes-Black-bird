@@ -57,7 +57,7 @@ def run_code(python_code: str):
         print(stdout, end="")
     if stderr:
         print(stderr, file=sys.stderr, end="")
-    sys.exit(proc.returncode)
+    return proc.returncode == 0
 
 
 if __name__ == "__main__":
@@ -69,4 +69,5 @@ if __name__ == "__main__":
                 code = f.read()
     else:
         code = sys.stdin.read()
-    run_code(code)
+    ok = run_code(code)
+    sys.exit(0 if ok else 1)
