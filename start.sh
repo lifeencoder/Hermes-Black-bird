@@ -2,6 +2,7 @@
 # ==============================================================================
 # Hermes Black Bird - Service Runner (start.sh)
 # Starts HexStrike (8888) and vLLM (8000)
+# Supports: bash start.sh [--restart / -r]
 # ==============================================================================
 set -e
 
@@ -13,8 +14,16 @@ HF_CACHE="$MARIMO_DIR/hf_cache"
 mkdir -p "$HF_CACHE"
 
 echo "=================================================="
-echo "🦅 Hermes Black Bird - Starting Services"
+echo "🦅 Hermes Black Bird - Service Launcher"
 echo "=================================================="
+
+# Optional Restart Argument
+if [ "$1" == "--restart" ] || [ "$1" == "-r" ] || [ "$1" == "restart" ]; then
+    echo "🔄 Restart requested: Stopping existing processes..."
+    pkill -9 -f vllm 2>/dev/null || true
+    pkill -9 -f hexstrike 2>/dev/null || true
+    sleep 2
+fi
 
 # 1. HexStrike API Server (Port 8888)
 echo -n "[1/2] Checking HexStrike on port 8888... "
@@ -61,6 +70,6 @@ fi
 if curl -s http://127.0.0.1:8000/v1/models > /dev/null 2>&1; then
     echo "✅ vLLM: ONLINE (http://127.0.0.1:8000/v1)"
 else
-    echo "⏳ vLLM: INITIALIZING / DOWNLOADING WEIGHTS (check /marimo/vllm_server.log)"
+    echo "⏳ vLLM: INITIALIZING / LOADING WEIGHTS (check /marimo/vllm_server.log)"
 fi
 echo "=================================================="
