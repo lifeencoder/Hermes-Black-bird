@@ -17,18 +17,18 @@ if not unindented_body.strip().endswith("_main_layout"):
 print(f"Extracted cell body ({len(unindented_body)} chars)")
 
 async with cm.get_context(skip_staleness_check=True) as ctx:
-    app_cell = next((c for c in ctx.cells if c.name == "persian_chat_app" or "hermes_chat_stream" in c.code or c.id == "rttW"), None)
+    app_cell = next((c for c in ctx.cells if c.name == "persian_chat_app" or c.id == "vblA"), None)
     if app_cell:
         print(f"Editing existing cell {app_cell.id}...")
         ctx.edit_cell(app_cell.id, code=unindented_body)
         target_id = app_cell.id
     else:
-        print("Creating new cell persian_chat_app after MJUe...")
+        print("Creating new cell persian_chat_app...")
         res = ctx.create_cell(code=unindented_body, after="MJUe", name="persian_chat_app")
         target_id = res if isinstance(res, str) else res.id
 
-    print(f"Running cell {target_id}...")
-    ctx.run_cell("Hbol")
-    ctx.run_cell("MJUe")
+    print("Running MJUe and target cell...")
+    if any(c.id == "MJUe" for c in ctx.cells):
+        ctx.run_cell("MJUe")
     ctx.run_cell(target_id)
-    print("All cells executed successfully!")
+    print("Cells executed successfully!")
