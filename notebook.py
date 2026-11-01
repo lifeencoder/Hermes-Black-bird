@@ -17,18 +17,8 @@ app = marimo.App(width="medium", auto_download=["html"])
 
 
 @app.cell(hide_code=True)
-def env_check():
-    import sys
-    import os
-    import json
-    import shutil
-    import subprocess
+def persian_chat_settings():
     import marimo as mo
-    return (mo,)
-
-
-@app.cell(hide_code=True)
-def persian_chat_settings(mo):
     endpoint_url = mo.ui.text(
         value="http://localhost:8000/v1",
         label="آدرس سرور استنتاج (Endpoint)",
@@ -78,12 +68,12 @@ def persian_chat_settings(mo):
     )
     test_conn_btn = mo.ui.run_button(label="آزمون اتصال")
     clear_chat_btn = mo.ui.run_button(label="پاک‌سازی گفتگو")
-
     return (
         api_key,
         clear_chat_btn,
         endpoint_url,
         max_tokens,
+        mo,
         model_name,
         presence_penalty,
         temperature,
